@@ -1,4 +1,5 @@
 //  Write a program to check whether a grammar is left recursive or not, if it is remove left recursion
+//119CS0143 - Astha Nayak
 #include<stdio.h>
 #include<string.h>
 #define SIZE 10

@@ -1,4 +1,5 @@
 // Write a program to eliminate left factoring from a given grammar if it is.
+// 119CS0143 - Astha Nayak
 #include <stdio.h>
 #include<stdio.h>
 #include<string.h>
