@@ -1,0 +1,107 @@
+%{
+# include <stdio.h>
+# include <stdlib.h>
+# include "fb3-1.h"
+%}
+
+%union {
+ struct ast *a;
+ double d;
+}
+/* declare tokens */
+%token <d> IDENTIFIER
+%token '\/'
+%token '/\'
+%token '~'
+%token '->'
+%token '<->'
+%token '('
+%token ')'
+
+
+%left '()' 
+%right '~'
+%left '<->'
+%left '->'
+%left '/\' 
+%left '\/'
+
+%%
+ ...
+Exp: Exp '\/' Exp { $$ = newast('+', $1,$3); }
+ 
+ | Exp '/\' Exp { $$ = newast('*', $1,$3); }
+ | (Exp)
+ |~Exp
+ | IDENTIFIER { $$ = newnum($1); }
+%%
+
+void
+treefree(struct ast *a)
+{
+ switch(a->nodetype) {
+ /* two subtrees */
+ case '+':
+ case '-':
+ case '*':
+ case '/':
+ treefree(a->r);
+ /* one subtree */
+ case '|':
+ case 'M':
+ treefree(a->l);
+/* no subtree */
+ case 'K':
+ free(a);
+ break;
+ default: printf("internal error: free bad node %c\n", a->nodetype);
+ }
+}
+
+struct ast *
+newnum(double d)
+{
+ struct numval *a = malloc(sizeof(struct numval));
+
+ if(!a) {
+ yyerror("out of space");
+ exit(0);
+ }
+ a->nodetype = 'K';
+ a->number = d;
+ return (struct ast *)a;
+}
+
+double
+eval(struct ast *a)
+{
+ double v; calculated value of this subtree
+ switch(a->nodetype) {
+ case '/\': v = eval(a->l) + eval(a->r); break;
+ case '\/': v = eval(a->l) * eval(a->r); break;
+ case '~': v = eval(a->l) + eval(a->r); break;
+ case '->': v = eval(a->l) * eval(a->r); break;
+ case '<->': v = eval(a->l) + eval(a->r); break;
+ case '(': v = eval(a->l) * eval(a->r); break;
+ case ')': v = eval(a->l) * eval(a->r); break;
+ case 'M': v = -eval(a->l); break;
+ default: printf("internal error: bad node %c\n", a->nodetype);
+ }
+ return v;
+}
+
+void
+yyerror(char *s, ...)
+{
+ va_list ap;
+ va_start(ap, s);
+ fprintf(stderr, "%d: error: ", yylineno);
+ vfprintf(stderr, s, ap);
+ fprintf(stderr, "\n");
+}
+int
+main()
+{
+ printf("> ");
+ return yyparse();
+}

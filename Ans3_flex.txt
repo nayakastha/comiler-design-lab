@@ -1,0 +1,26 @@
+%{ 
+  
+%} 
+
+%% 
+[tT]             {printf("True\n")}
+[fF]             {printf("False\n")}
+[a-zA-Z]+ 	  {printf("Variable\n");}  
+"\/"    	  {printf("or\n");}
+"/\"    	  {printf("and\n");} 
+"~"    	  {printf("complement\n");}
+"->" 	  {printf("implies\n");}
+"<->"          {printf("iff\n");}
+"("              {printf("opening parenthesis\n")}
+")"              {printf("closing parenthesis\n")}
+[ /t]            {}
+.                 {printf("Unknown Token\n");}
+\n              {return 0;}
+%% 
+
+int yywrap(){} 
+int main()
+{  
+	yylex(); 
+	return 0; 
+}
